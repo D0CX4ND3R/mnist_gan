@@ -11,10 +11,11 @@ LOG_DIR = '/workspace/logs'
 MODEL_DIR = '/workspace/models'
 NORM_PARAMS = {'decay': 0.995, 'epsilon': 0.0001}
 L2_WEIGHTS = 0.0005
-BATCH_SIZE = 128
+BATCH_SIZE = 256
 IMAGE_SIZE = [28, 28]
-LEARNING_RATE = 0.1
-TOTAL_EPOCHES = 50000
+LEARNING_RATE = 0.003
+TOTAL_EPOCHES = 150000
+DISPLAY_ROW = 16
 
 
 def load_mnist(dataset_path):
@@ -32,7 +33,8 @@ def batch_generator(image, batch_size=128):
     while True:
         ind = np.random.choice(np.arange(0, n, dtype=np.int32), batch_size, replace=False)
         batch_image = image[ind].astype(np.float32).reshape([batch_size, h, w, 1])
-        batch_noise = np.random.rand(batch_size, h, w, 1)
+        batch_image = (batch_image - 127.5) / 127.5
+        batch_noise = np.random.uniform(-1, 1, batch_image.shape)
         yield batch_image, batch_noise
 
 
@@ -58,7 +60,7 @@ def gan_generator(noise_image):
             up5 = upsample_and_concat(conv4, conv1, 8, 16)
             conv5 = slim.repeat(up5, 2, slim.conv2d, kernel_size=[3, 3], num_outputs=8, scope='conv5')
 
-            generated_image = slim.conv2d(conv5, 1, [1, 1], activation_fn=None)
+            generated_image = slim.conv2d(conv5, 1, [1, 1], activation_fn=tf.nn.tanh)
     return generated_image
 
 
@@ -120,8 +122,9 @@ def network(batch_images, batch_noises):
 
 def display_batch_py(images, rows=8):
     n, h, w, c = images.shape
-    return images.reshape([rows, n // rows, h, w, c]).transpose(0, 2, 1, 3, 4).reshape([1, rows * h, n // rows * w, c]).astype(np.uint8)
-
+    images = images.reshape([rows, n // rows, h, w, c]).transpose(0, 2, 1, 3, 4).reshape([1, rows * h, n // rows * w, c])
+    images = images * 127.5 + 127.5
+    return images.astype(np.uint8)
 
 def _main():
     with tf.name_scope('Inputs'):
@@ -143,8 +146,10 @@ def _main():
 
     with tf.name_scope('Train'):
         global_step = tf.train.get_or_create_global_step()
-        d_train_op = tf.train.MomentumOptimizer(LEARNING_RATE, 0.9).minimize(d_loss, global_step)
-        g_train_op = tf.train.MomentumOptimizer(LEARNING_RATE, 0.9).minimize(g_loss, global_step)
+        # d_train_op = tf.train.MomentumOptimizer(LEARNING_RATE, 0.9).minimize(d_loss, global_step)
+        # g_train_op = tf.train.MomentumOptimizer(LEARNING_RATE, 0.9).minimize(g_loss, global_step)
+        d_train_op = tf.train.AdamOptimizer(LEARNING_RATE).minimize(d_loss, global_step)
+        g_train_op = tf.train.AdamOptimizer(LEARNING_RATE).minimize(g_loss, global_step)
 
         init_op = tf.group(tf.local_variables_initializer(), tf.global_variables_initializer())
         summary_op = tf.summary.merge_all()
