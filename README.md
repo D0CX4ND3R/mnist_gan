@@ -1,6 +1,6 @@
 # MNIST_GAN
 Reproduct of GAN for MNIST.
-Just for learn the basic knowledge about Generative Adversarial Networks (GAN).
+Just for learning the basic knowledges about Generative Adversarial Networks (GAN).
 
 ## Results
 Epoch 2500 17900 30200 40000
@@ -20,7 +20,7 @@ convolutions and a global average pooling before fully connected.
 
 ## Usage
 Simple:
-```python 
+```shell 
 python mnist_gan.py
 ```
 
