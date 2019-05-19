@@ -1,4 +1,4 @@
-# MNISST_GAN
+# MNIST_GAN
 Reproduct of GAN for MNIST.
 Just for learn the basic knowledge about Generative Adversarial Networks (GAN).
 
@@ -9,14 +9,14 @@ Epoch 2500 17900 30200 40000
 
 ## Basic Thoughts
 GAN has a *generator* generates fake instances from noises, and a *discriminator* 
-distinguish the fake instances and real instances.
+distinguishes the fake instances and real instances.
 
-Training both two networks reach a Nash Equilibrium the GAN model is converged.
+Training both two networks reaches a Nash Equilibrium the GAN model is converged.
 
 ## Structure
-The generator is a U-Net-like backbone with two downsampling and 
-two upsampling. The discriminator is a VGG-like backbone an average pooling after two
-convolutions and global average pooling before fully connected.
+The generator is a U-Net-like backbone with two downsampling stages and 
+two upsampling stages. The discriminator is a VGG-like backbone with an average pooling after two
+convolutions and a global average pooling before fully connected.
 
 ## Usage
 Simple:
@@ -25,7 +25,7 @@ python mnist_gan.py
 ```
 
 Costume:
-```python
+```shell
 python mnist_gan.py \
 --learning_rate 0.01 \
 --batch_szie 256 \
